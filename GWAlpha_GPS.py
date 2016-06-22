@@ -46,6 +46,7 @@ if "-help" in sys.argv or "--help" in sys.argv or "-h" in sys.argv:
 	print("                    -speBins : custom specified cut-offs percentage used to define the bins, this option overwrites the -nBins option,"+brk+"                               set of n-1 continous to represent the n bins, default is 5")
 	print("                    -nSim : number of simulation to be carried, integer, default is 1")
 	print("                    -glm : runs a general linear model between the phenotype and the SNP data, returning a *_glm.txt file with minor allele frequencies, p-values and ranking of associations")
+	print("                    -fet : runs a Fisher exact test between the two extreme bins of the data, returning a *_fet.txt file with minor allele frequencies, p-values and ranking of test statistics")
 	sys.exit()
 
 if "-nSim" in sys.argv:
@@ -146,6 +147,11 @@ for z in range(nSim):
 	e=np.random.normal(0,Ve**(0.5),nInd)
 	Y=Xb+e
 
+	#Generate the data for the simulated dataset
+	cuts=np.insert(np.percentile(Y,bincuts),0,np.min(Y))
+	cuts=np.insert(cuts,len(cuts),np.max(Y))
+	SNP_sync=np.concatenate((np.repeat('Chr',nSNP),np.arange(1,nSNP+1),np.repeat('N',nSNP)),axis=1).reshape(3,nSNP)
+
 	#Use a standard LS fit to the data
 	if "-glm" in sys.argv:
 		from scipy import stats
@@ -157,10 +163,25 @@ for z in range(nSim):
 		Rk_SNP=1+np.argsort(p_SNP).argsort()
 		SNP_glm=np.vstack((np.repeat('Chr',nSNP).astype("|S20"),np.arange(1,nSNP+1),np.repeat('N',nSNP),freq_SNP,p_SNP,Rk_SNP))
 
-	#Generate the data for the simulated dataset
-	cuts=np.insert(np.percentile(Y,bincuts),0,np.min(Y))
-	cuts=np.insert(cuts,len(cuts),np.max(Y))
-	SNP_sync=np.concatenate((np.repeat('Chr',nSNP),np.arange(1,nSNP+1),np.repeat('N',nSNP)),axis=1).reshape(3,nSNP)
+	#Use a Fisher exact test to the data
+	if "-fet" in sys.argv:
+		from scipy import stats
+		low=cuts[1]
+		X_low=X[Y<=low,:]
+		freq_low=X_low.sum(axis=0)/float(2*X_low.shape[0])
+		high=cuts[len(cuts)-2]
+		X_high=X[Y>=high,:]
+		freq_high=X_high.sum(axis=0)/float(2*X_high.shape[0])
+		def FET(i):
+			table=[[int(freq_low[i]*Coverage[0,i]),int((1-freq_low[i])*Coverage[0,i])],[int(freq_high[i]*Coverage[0,i]),int((1-freq_high[i])*Coverage[0,i])]]
+			return(stats.fisher_exact(table,alternative='two-sided')[1])
+		p_SNP=np.array([])
+		for i in range(nSNP):
+			p_value= FET(i)
+			p_SNP=np.append(p_SNP,np.round(p_value,16))
+		freq_SNP=.5-np.abs(np.sum(X,axis=0)/(2.*nInd)-.5)
+		Rk_SNP=1+np.argsort(p_SNP).argsort()
+		SNP_fet=np.vstack((np.repeat('Chr',nSNP).astype("|S20"),np.arange(1,nSNP+1),np.repeat('N',nSNP),freq_SNP,p_SNP,Rk_SNP))
 
 	for k in range(1,len(cuts)):
 		bottom=cuts[k-1]
@@ -185,6 +206,10 @@ for z in range(nSim):
 	if '-glm' in sys.argv:
 		filename=FileHandle +"_glm.txt"
 		np.savetxt(filename, np.transpose(SNP_glm), header="Chr\tPosition\tAllele\tFreq\tPvalue\tRank", delimiter="\t", fmt="%s")
+	
+	if '-fet' in sys.argv:
+		filename=FileHandle +"_fet.txt"
+		np.savetxt(filename, np.transpose(SNP_fet), header="Chr\tPosition\tAllele\tFreq\tPvalue\tRank", delimiter="\t", fmt="%s")
 	
 	PERC=str(np.array(bincuts)/100)
 	CUTS=str(cuts[1:(len(cuts)-1)])

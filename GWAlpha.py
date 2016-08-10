@@ -1,4 +1,4 @@
-#!us/local/bin/python
+#! /usr/bin/env python
 from numpy import *
 seterr(all='ignore')
 from scipy import stats
@@ -8,6 +8,9 @@ import re
 
 Pheno_File=sys.argv[1].split('.')[0]
 execfile(re.sub(r'_tmp\d+', '', Pheno_File)+"_pheno.py")
+
+Pheno_Dir=sys.argv[1].rsplit('/',1)[0]
+Pheno_File=sys.argv[1].rsplit('/',1)[1]
 
 MAF=.03
 noP=False
@@ -100,6 +103,6 @@ for SNP in Freq_File:
 				break
 
 header="Chromosome,Position,Mutation,Alpha,MAF"
-filename="GWAlpha_"+Pheno_File+"_out.csv"
+filename=Pheno_Dir+"/GWAlpha_"+Pheno_File+"_out.csv"
 savetxt(filename, array(GWAlpha_out), delimiter=",",header=header,fmt="%s")
 

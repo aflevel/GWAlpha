@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#! /usr/bin/env python
 import numpy as np
 #from scipy import stats
 import sys
@@ -43,7 +43,7 @@ if "-help" in sys.argv or "--help" in sys.argv or "-h" in sys.argv:
 	print("                    -lambdaCoverage : lambda parameter of the poisson distribution of the sequencing coverage, continuous positive, default is 40")
 	print("                    -minFreq : minimun allele frequency for the SNP, continuous from 0 to 1, default is 0.05")
 	print("                    -nBins : number of bins the phenotypes were pooled into, this option assumes the bins were of even sizes, integer, default is 5")
-	print("                    -speBins : custom specified cut-offs percentage used to define the bins, this option overwrites the -nBins option,"+brk+"                               set of n-1 continous to represent the n bins, default is 5")
+	print("                    -speBins : custom specified cut-offs percentage used to define the bins, this option overwrites the -nBins option,"+brk+"                               set of n-1 continous to represent the n bins, default (in %) is 6.4 23.5 76.5 93.6")
 	print("                    -nSim : number of simulation to be carried, integer, default is 1")
 	print("                    -glm : runs a general linear model between the phenotype and the SNP data, returning a *_glm.txt file with minor allele frequencies, p-values and ranking of associations")
 	print("                    -fet : runs a Fisher exact test between the two extreme bins of the data, returning a *_fet.txt file with minor allele frequencies, p-values and ranking of test statistics")

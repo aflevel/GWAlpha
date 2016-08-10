@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#! /usr/bin/env python
 import numpy as np
 import sys
 import os
@@ -12,6 +12,12 @@ else:
 
 bincuts=(6.4,23.5,76.5,93.6)
 lam=40
+
+if "-help" in sys.argv or "--help" in sys.argv or "-h" in sys.argv:
+	print("usage is:"+brk+" python GWAlpha_RDC.py [INPUT_PHENOTYPE] [INPUT_GENOTYPE] -option_name <value>..."+brk+" [INPUT_PHENOTYPE]: a *.csv file containing the trait values"+brk+" [INPUT_GENOTYPE]: a *.csv file containing the genotype values"+brk+" and the options are:")
+	print("                    -nBins : number of bins the phenotypes were pooled into, this option assumes the bins were of even sizes, integer, default is 5")
+	print("                    -speBins : custom specified cut-offs percentage used to define the bins, this option overwrites the -nBins option,"+brk+"                               set of n-1 continous to represent the n bins, default (in %) is 6.4 23.5 76.5 93.6")
+	sys.exit()
 
 if "-nBins" in sys.argv:
 	nBins=int(sys.argv[sys.argv.index("-nBins")+1])

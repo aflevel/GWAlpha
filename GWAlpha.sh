@@ -1,35 +1,38 @@
-#!usr/bin/bash
+#!/bin/bash
 
-Pheno_Name=`echo $1 | cut -f1 -d.`
+DIR=`dirname $1`
+FILE=`basename $1`
 
-rm -f *${Pheno_Name}_tmp*;
+Pheno_Name=`echo $FILE | cut -f1 -d.`
+
+rm -f ${DIR}/*${Pheno_Name}_tmp*;
 
 nSNP=`cat $1 | wc -l`
 step=$(($nSNP/(`nproc`-1)))
 
 k=0
-sed -n $(($k*$step+1)),$(($k*$step+$step))p $1 > ${Pheno_Name}_tmp${k}
+sed -n $(($k*$step+1)),$(($k*$step+$step))p $1 > ${DIR}/${Pheno_Name}_tmp${k}
 
-while ((`cat ${Pheno_Name}_tmp${k} | wc -l` > 0)); do
-        k=$(($k+1))
-        sed -n $(($k*$step+1)),$(($k*$step+$step))p $1 > ${Pheno_Name}_tmp${k}
+while ((`cat ${DIR}/${Pheno_Name}_tmp${k} | wc -l` > 0)); do
+	k=$(($k+1))
+	sed -n $(($k*$step+1)),$(($k*$step+$step))p $1 > ${DIR}/${Pheno_Name}_tmp${k}
 done
 
 echo "GWAlpha will be split into $k parallel jobs of $step SNPs maximum" 
 
-rm ${Pheno_Name}_tmp${k}
+rm $DIR${Pheno_Name}_tmp${k}
 
-parallel --gnu -j `nproc` 'python GWAlpha.py {} ML' ::: $(ls ${Pheno_Name}_tmp*)
+parallel --gnu -j `nproc` 'GWAlpha.py {1} {2} {3} {4} {5}' ::: $(ls ${DIR}/${Pheno_Name}_tmp*) ::: ${2:-ML} ::: ${3:-""} ::: ${4:-""} ::: ${5:-""}
 
-printf Chromosome,Position,Allele,Alpha,MAF\\n > GWAlpha_${Pheno_Name}_out.csv
+printf Chromosome,Position,Allele,Alpha,MAF\\n > ${DIR}/GWAlpha_${Pheno_Name}_out.csv
 
-for FILE in GWAlpha_${Pheno_Name}_tmp*; do
-	sed '1d' $FILE >> GWAlpha_${Pheno_Name}_out.csv
+for FILE in ${DIR}/GWAlpha_${Pheno_Name}_tmp*; do
+	sed '1d' $FILE >> ${DIR}/GWAlpha_${Pheno_Name}_out.csv
 done
 
-sort -t\, -k 1,1n -k 2,2n GWAlpha_${Pheno_Name}_out.csv -o GWAlpha_${Pheno_Name}_out.csv
+sort -t\, -k 1,1n -k 2,2n ${DIR}/GWAlpha_${Pheno_Name}_out.csv -o ${DIR}/GWAlpha_${Pheno_Name}_out.csv
 
-rm *${Pheno_Name}_tmp*
+rm ${DIR}/*${Pheno_Name}_tmp*
 
-Rscript GWAlphaPlot.r ${Pheno_Name}
+GWAlphaPlot.r ${DIR}/GWAlpha_${Pheno_Name}_out.csv pval
 

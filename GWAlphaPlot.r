@@ -93,7 +93,7 @@ if (RAW) {
 	points(GWAlpha[CHR %% 2 !=0]^2~Position.cum[CHR %% 2 !=0],pch=20, col="#104E8B")
 	points(GWAlpha[CHR %% 2 ==0]^2~Position.cum[CHR %% 2 ==0],pch=20, col="#ADD8E6")
 	#abline(v=CHR.cum[!is.na(names(CHR.cum))][-1],col=2,lty=2,ylim=c(0,max(GWAlpha^2,na.rm=T)))
-	abline(h=quantile(GWAlpha^2,1-(100/length(GWAlpha))),col=3)
+	if (length(GWAlpha)>100)	abline(h=quantile(GWAlpha^2,1-(100/length(GWAlpha))),col=3)
 	dev.off()
 } else {
 	est<- optim(c(mu=0,sig=1),LogLik,control=list(fnscale=-1,reltol=10e-8))$par
@@ -105,7 +105,7 @@ if (RAW) {
 	points(p_score[CHR %% 2 !=0]~Position.cum[CHR %% 2 !=0],pch=20, col="#104E8B")
 	points(p_score[CHR %% 2 ==0]~Position.cum[CHR %% 2 ==0],pch=20, col="#ADD8E6")
 	#abline(v=CHR.cum[!is.na(names(CHR.cum))][-1],col=2,lty=2)
-	abline(h=quantile(p_score,1-(100/length(GWAlpha))),col=3)
+	if (length(GWAlpha)>100)	abline(h=quantile(p_score,1-(100/length(GWAlpha))),col=3)
 	dev.off()
 }
 

@@ -5,12 +5,20 @@ from scipy import stats
 from scipy.optimize import minimize
 import sys
 import re
+import os.path
 
 Pheno_File=sys.argv[1].split('.')[0]
+
+if not os.path.isfile(sys.argv[1]):
+	exit("the input files for GWAlpha were not found, exiting.")
+
 execfile(re.sub(r'_tmp\d+', '', Pheno_File)+"_pheno.py")
 
-Pheno_Dir=sys.argv[1].rsplit('/',1)[0]
-Pheno_File=sys.argv[1].rsplit('/',1)[1]
+if '/' in Pheno_File:
+	Pheno_Dir=sys.argv[1].rsplit('/',1)[0]
+	Pheno_File=sys.argv[1].rsplit('/',1)[1]
+else:
+	Pheno_Dir='.'
 
 MAF=.03
 noP=False

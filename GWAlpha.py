@@ -7,10 +7,10 @@ import sys
 import re
 import os.path
 
-if ".sync" not in sys.argv:
-	exit("The input file not a *.sync file, exiting.")
+if ".sync" not in sys.argv[1]:
+	exit("The input files for GWAlpha is not in *.sync format, exiting.")
 
-Pheno_File=sys.argv[1].split('.sy')[0]
+Pheno_File=sys.argv[1].split('.syn')[0]
 
 if not os.path.isfile(sys.argv[1]):
 	exit("The input files for GWAlpha were not found, exiting.")

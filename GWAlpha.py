@@ -7,10 +7,13 @@ import sys
 import re
 import os.path
 
-Pheno_File=sys.argv[1].split('.')[0]
+if ".sync" not in sys.argv:
+	exit("The input file not a *.sync file, exiting.")
+
+Pheno_File=sys.argv[1].split('.sy')[0]
 
 if not os.path.isfile(sys.argv[1]):
-	exit("the input files for GWAlpha were not found, exiting.")
+	exit("The input files for GWAlpha were not found, exiting.")
 
 execfile(re.sub(r'_tmp\d+', '', Pheno_File)+"_pheno.py")
 

@@ -8,7 +8,7 @@ import re
 import os.path
 
 if ".sync" not in sys.argv[1]:
-	exit("The input files for GWAlpha is not in *.sync format, exiting.")
+	exit("The input file for GWAlpha is not in *.sync format, exiting.")
 
 Pheno_File=sys.argv[1].split('.syn')[0]
 
@@ -74,7 +74,7 @@ def QuantiSeq(sig,MIN,MAX,perc,q,freqA):
 		sol=minimize(fn,x0, method='nelder-mead', options={'xtol': 1e-8, 'disp': False})['x']
 		muA_hat=MIN+(MAX-MIN)*sol[0]/(sol[0]+sol[1])
 		muB_hat=MIN+(MAX-MIN)*sol[2]/(sol[2]+sol[3])
-		Alfa=PEN(pA)*abs(muB_hat-muA_hat)/(2*sig)
+		Alfa=PEN(pA)*(muA_hat-muB_hat)/(2*sig)
 	except ValueError:
 		Alfa=0
 	return(Alfa)

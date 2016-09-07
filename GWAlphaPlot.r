@@ -35,7 +35,7 @@ ptnorm=function (q, mean = 0, sd = 1) {
 }
 
 LogLik=function(x) {
-	sum(dtnorm(GWAlpha,mean=x[1],sd=x[2]))
+	sum(dtnorm(abs(GWAlpha),mean=x[1],sd=x[2]))
 }
 
 Pheno.name=unlist(strsplit(args[1],"/"))
@@ -97,7 +97,7 @@ if (RAW) {
 	dev.off()
 } else {
 	est<- optim(c(mu=0,sig=1),LogLik,control=list(fnscale=-1,reltol=10e-8))$par
-	pval=1-ptnorm(GWAlpha,est[1],est[2])
+	pval=1-ptnorm(abs(GWAlpha),est[1],est[2])
 	p_score=-log10(pval)
 	png(file=gsub("_out.csv",".png",args[1]),width=1200,height=400)
 	plot(0,pch='',xlim=c(0,max(Position.cum)),xlab="Chromosome",xaxt='n',ylab=expression(-log[10](italic(p))),ylim=c(0,max(p_score,na.rm=T)),bty="n",las=2,main=Pheno.name)

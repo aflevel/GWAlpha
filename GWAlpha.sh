@@ -13,14 +13,14 @@ step=$(($nSNP/(`nproc`-1)))
 k=0
 sed -n $(($k*$step+1)),$(($k*$step+$step))p $1 > ${DIR}/${Pheno_Name}_tmp${k}.sync
 
-while ((`cat ${DIR}/${Pheno_Name}_tmp${k} | wc -l` > 0)); do
+while ((`cat ${DIR}/${Pheno_Name}_tmp${k}.sync | wc -l` > 0)); do
 	k=$(($k+1))
 	sed -n $(($k*$step+1)),$(($k*$step+$step))p $1 > ${DIR}/${Pheno_Name}_tmp${k}.sync
 done
 
 echo "GWAlpha will be split into $k parallel jobs of $step SNPs maximum" 
 
-rm $DIR${Pheno_Name}_tmp${k}
+rm $DIR/${Pheno_Name}_tmp${k}.sync
 
 parallel --gnu -j `nproc` 'GWAlpha.py {1} {2} {3} {4} {5}' ::: $(ls ${DIR}/${Pheno_Name}_tmp*) ::: ${2:-ML} ::: ${3:-""} ::: ${4:-""} ::: ${5:-""}
 

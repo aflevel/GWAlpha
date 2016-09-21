@@ -1,4 +1,4 @@
-#!/bin/bash
+#!usr/bin/bash
 
 DIR=`dirname $1`
 FILE=`basename $1`
@@ -30,9 +30,11 @@ for FILE in ${DIR}/GWAlpha_${Pheno_Name}_tmp*; do
 	sed '1d' $FILE >> ${DIR}/GWAlpha_${Pheno_Name}_out.csv
 done
 
-sort -t\, -k 1,1n -k 2,2n ${DIR}/GWAlpha_${Pheno_Name}_out.csv -o ${DIR}/GWAlpha_${Pheno_Name}_out.csv
+grep Chromosome, ${DIR}/GWAlpha_${Pheno_Name}_out.csv > HD
+grep -v Chromosome, ${DIR}/GWAlpha_${Pheno_Name}_out.csv | sort -t\, -k 1,1 -k 2,2n -o ${DIR}/GWAlpha_${Pheno_Name}_out.csv
+cat HD ${DIR}/GWAlpha_${Pheno_Name}_out.csv > tmp && mv tmp ${DIR}/GWAlpha_${Pheno_Name}_out.csv
 
-rm ${DIR}/*${Pheno_Name}_tmp*
+rm HD ${DIR}/*${Pheno_Name}_tmp*
 
-GWAlphaPlot.r ${DIR}/GWAlpha_${Pheno_Name}_out.csv pval
+GWAlphaPlot.r ${DIR}/GWAlpha_${Pheno_Name}_out.csv
 

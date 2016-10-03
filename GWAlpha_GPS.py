@@ -150,7 +150,10 @@ for z in range(nSim):
 	#Generate the data for the simulated dataset
 	cuts=np.insert(np.percentile(Y,bincuts),0,np.min(Y))
 	cuts=np.insert(cuts,len(cuts),np.max(Y))
-	SNP_sync=np.concatenate((np.repeat('Chr',nSNP),np.arange(1,nSNP+1),np.repeat('N',nSNP)),axis=1).reshape(3,nSNP)
+	try:
+		SNP_sync=np.concatenate((np.repeat('Chr',nSNP),np.arange(1,nSNP+1),np.repeat('N',nSNP)),axis=1).reshape(3,nSNP)
+	except IndexError:
+		SNP_sync=np.concatenate((np.repeat('Chr',nSNP),np.arange(1,nSNP+1),np.repeat('N',nSNP)),axis=0).reshape(3,nSNP)
 
 	#Use a standard LS fit to the data
 	if "-glm" in sys.argv:

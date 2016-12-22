@@ -37,7 +37,7 @@ if noP:
 		return(1)
 else:
 	def PEN(pA):
-		return(((pA*(1-pA))**.5))
+		return(2*((pA*(1-pA))**.5))
 
 if "ML" in sys.argv:
 	method="ML"
@@ -74,7 +74,7 @@ def QuantiSeq(sig,MIN,MAX,perc,q,freqA):
 		sol=minimize(fn,x0, method='nelder-mead', options={'xtol': 1e-8, 'disp': False})['x']
 		muA_hat=MIN+(MAX-MIN)*sol[0]/(sol[0]+sol[1])
 		muB_hat=MIN+(MAX-MIN)*sol[2]/(sol[2]+sol[3])
-		Alfa=PEN(pA)*(muA_hat-muB_hat)/(2*sig)
+		Alfa=PEN(pA)*(muA_hat-muB_hat)/sig
 	except ValueError:
 		Alfa=0
 	return(Alfa)
@@ -95,25 +95,26 @@ for SNP in Freq_File:
 	SNP_freq=SNP[3:]
 	SNP_freq=map(colsplit,SNP_freq)
 	SNP_freq=array(SNP_freq,dtype=float)
+	COVER=sum(SNP_freq,axis=0)
 	freq=SNP_freq/sum(SNP_freq,axis=1)[:,None]+1e-6
 	freq_max=amax(freq,axis=0)
 	for i in [0,1,2,3,5]:
 		if [freq_max>MAF][0][i]:
 			if [freq_max!=max(freq_max)][0][i] or sum([freq_max>MAF][0])>2:
 				Allele_freq=round(sum(freq[:,i]*perc_bins),3)
-				if Allele_freq<MAF: continue
+				if Allele_freq<MAF or Allele_freq>1-MAF: continue
 				GWAlpha=QuantiSeq(sig,MIN,MAX,perc,q,freq[:,i])
-				GWAlpha_line=[SNP_name[0],SNP_name[1],SNP_call[i],GWAlpha,Allele_freq]
+				GWAlpha_line=[SNP_name[0],SNP_name[1],SNP_call[i],GWAlpha,Allele_freq,COVER[i]]
 				GWAlpha_out.append(GWAlpha_line)
 			elif sum([freq_max==max(freq_max)][0])>1:
 				Allele_freq=round(sum(freq[:,i]*perc_bins),3)
-				if Allele_freq<MAF: continue
+				if Allele_freq<MAF or Allele_freq>1-MAF: continue
 				GWAlpha=QuantiSeq(sig,MIN,MAX,perc,q,freq[:,i])
-				GWAlpha_line=[SNP_name[0],SNP_name[1],SNP_call[i],GWAlpha,Allele_freq]
+				GWAlpha_line=[SNP_name[0],SNP_name[1],SNP_call[i],GWAlpha,Allele_freq,COVER[i]]
 				GWAlpha_out.append(GWAlpha_line)
 				break
 
-header="Chromosome,Position,Mutation,Alpha,MAF"
+header="Chromosome,Position,Mutation,Alpha,MAF,COV"
 filename=Pheno_Dir+"/GWAlpha_"+Pheno_File+"_out.csv"
 savetxt(filename, array(GWAlpha_out), delimiter=",",header=header,fmt="%s")
 

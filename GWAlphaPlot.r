@@ -5,38 +5,12 @@ options(warn=-1)
 
 RAW=T
 
-if ("pval" %in% args) RAW=F
-
-dtnorm=function (x, mean = 0, sd = 1) {
-    ret <- numeric(length(x))
-    ret[x < 0] <- -Inf
-    ind <- x >= 0
-    if (any(ind)) {
-        denom <- pnorm(Inf, mean, sd) - pnorm(0, mean, 
-            sd)
-        xtmp <- dnorm(x, mean, sd, log=T)
-        xtmp <- xtmp - log(denom)
-        ret[x >= 0] <- xtmp[ind]
-    }
-    ret
+if ("pval" %in% args) {
+	RAW=F
+	if ("qqplot" %in% args) QQ=T
 }
 
-ptnorm=function (q, mean = 0, sd = 1) {
-    ret <- numeric(length(q))
-    ret[q < 0] <- 0
-	ind <- q >= 0
-    if (any(ind)) {
-        denom <- pnorm(Inf, mean, sd) - pnorm(0, mean, sd)
-        qtmp <- pnorm(q, mean, sd) - pnorm(0, mean, sd)
-        qtmp <- qtmp/denom
-        ret[q >= 0] <- qtmp[ind]
-    }
-    ret
-}
-
-LogLik=function(x) {
-	sum(dtnorm(abs(GWAlpha),mean=x[1],sd=x[2]))
-}
+LL=function(x,y) sum(dnorm(y,x[1],x[2],log=T))
 
 Pheno.name=unlist(strsplit(args[1],"/"))
 Pheno.name=Pheno.name[length(Pheno.name)]
@@ -96,8 +70,8 @@ if (RAW) {
 	if (length(GWAlpha)>100)	abline(h=quantile(GWAlpha^2,1-(100/length(GWAlpha))),col=3)
 	dev.off()
 } else {
-	est<- optim(c(mu=0,sig=1),LogLik,control=list(fnscale=-1,reltol=10e-8))$par
-	pval=1-ptnorm(abs(GWAlpha),est[1],est[2])
+	EST=optim(par=c(mu=0,sd=sd(GWAlpha)),fn=LL,y=GWAlpha,control=list(fnscale=-1,reltol=1e-10))$par
+	pval=ifelse(pnorm(GWAlpha,EST[1],EST[2]) > 0.5, 2*(1-pnorm(GWAlpha,EST[1],EST[2])), 2*pnorm(GWAlpha,EST[1],EST[2]))
 	p_score=-log10(pval)
 	png(file=gsub("_out.csv",".png",args[1]),width=1200,height=400)
 	plot(0,pch='',xlim=c(0,max(Position.cum)),xlab="Chromosome",xaxt='n',ylab=expression(-log[10](italic(p))),ylim=c(0,max(p_score,na.rm=T)),bty="n",las=2,main=Pheno.name)
@@ -107,6 +81,14 @@ if (RAW) {
 	#abline(v=CHR.cum[!is.na(names(CHR.cum))][-1],col=2,lty=2)
 	if (length(GWAlpha)>100)	abline(h=quantile(p_score,1-(100/length(GWAlpha))),col=3)
 	dev.off()
+	if (QQ) {
+		png(file=gsub("_out.csv","_qqplot.png",args[1]),width=1200,height=400)
+		p_order=-log10(pval[order(pval,decreasing=T)])
+		p_exp=-log10(seq(1,0,length=length(pval)))
+		plot(p_order~p_exp,ylab="Observed p-value",xlab="Expected p-value")
+		abline(0,1,col=2)
+		dev.off()
+	}
 }
 
 

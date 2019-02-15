@@ -1,4 +1,4 @@
-#!usr/bin/bash
+#!/usr/bin/bash
 
 DIR=`dirname $1`
 FILE=`basename $1`

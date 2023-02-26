@@ -117,6 +117,6 @@ for SNP in Freq_File:
 
 header="Chromosome,Position,Mutation,Alpha,MAF,COV"
 time=datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
-filename=Pheno_Dir+"/GWAlpha_"+Pheno_File+"_out"+time+".csv"
+filename=Pheno_Dir+"/GWAlpha_"+Pheno_File+"_out_"+time+".csv"
 savetxt(filename, array(GWAlpha_out), delimiter=",",header=header,fmt="%s")
 

@@ -85,7 +85,7 @@ def colsplit(x):
 
 perc_bins=[y-x for y, x in zip(perc+[1],[0]+perc)]
 
-Freq_File=open(sys.argv[1],'rb').readlines()
+Freq_File=open(sys.argv[1],'rb')
 SNP_call=['A','T','C','G','N','D']
 
 GWAlpha_out=[]

@@ -6,6 +6,7 @@ from scipy.optimize import minimize
 import sys
 import re
 import os.path
+from datetime import datetime
 
 if ".sync" not in sys.argv[1]:
 	exit("The input file for GWAlpha is not in *.sync format, exiting.")
@@ -115,6 +116,7 @@ for SNP in Freq_File:
 				break
 
 header="Chromosome,Position,Mutation,Alpha,MAF,COV"
-filename=Pheno_Dir+"/GWAlpha_"+Pheno_File+"_out.csv"
+time=datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
+filename=Pheno_Dir+"/GWAlpha_"+Pheno_File+"_out_"+time+".csv"
 savetxt(filename, array(GWAlpha_out), delimiter=",",header=header,fmt="%s")
 

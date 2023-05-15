@@ -81,12 +81,13 @@ def QuantiSeq(sig,MIN,MAX,perc,q,freqA):
 	return(Alfa)
 
 def colsplit(x):
-	return(x.split(":"))
+	s = x.split(":")
+	return([s[0], s[1], s[2], s[3], s[5]])
 
 perc_bins=[y-x for y, x in zip(perc+[1],[0]+perc)]
 
 Freq_File=open(sys.argv[1],'rb')
-SNP_call=['A','T','C','G','N','D']
+SNP_call=['A','T','C','G','D'] # remove Ns
 
 GWAlpha_out=[]
 
@@ -99,7 +100,7 @@ for SNP in Freq_File:
 	COVER=sum(SNP_freq,axis=0)
 	freq=SNP_freq/sum(SNP_freq,axis=1)[:,None]+1e-6
 	freq_max=amax(freq,axis=0)
-	for i in [0,1,2,3,5]:
+	for i in range(5):
 		if [freq_max>MAF][0][i]:
 			if [freq_max!=max(freq_max)][0][i] or sum([freq_max>MAF][0])>2:
 				Allele_freq=round(sum(freq[:,i]*perc_bins),3)
